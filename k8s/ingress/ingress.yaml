@@ -4,21 +4,31 @@ metadata:
   name: voting-app-ingress
   namespace: voting-app
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - vote.nata.ironlabs.online
+    - result.nata.ironlabs.online
+    secretName: voting-app-tls
   rules:
-  - http:
+  - host: vote.nata.ironlabs.online
+    http:
       paths:
-      - path: /vote(/|$)(.*)
-        pathType: ImplementationSpecific
+      - path: /
+        pathType: Prefix
         backend:
           service:
             name: vote-service
             port:
               number: 80
-      - path: /result(/|$)(.*)
-        pathType: ImplementationSpecific
+  - host: result.nata.ironlabs.online
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
         backend:
           service:
             name: result-service
